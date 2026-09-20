@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>六块立体图形随机生成器</title>
+  <title>立体大楼变变变</title>
   <meta name="description" content="在固定视角下随机生成由 6 个小正方体组成、两层高、底座范围为 2x3 的立体图形。">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230f172a'/%3E%3Cpath d='M8 14 16 9l8 5-8 5-8-5Z' fill='%23d9fbff'/%3E%3Cpath d='M8 14v9l8 5v-9l-8-5Z' fill='%2379d7ee'/%3E%3Cpath d='M24 14v9l-8 5v-9l8-5Z' fill='%233aaac8'/%3E%3C/svg%3E">
   <style>
@@ -160,53 +160,6 @@
       transform: translateY(-1px);
     }
 
-    .facts {
-      display: grid;
-      gap: 8px;
-      padding: 14px;
-      background: var(--panel-soft);
-      border-radius: 8px;
-      border: 1px solid rgba(100, 116, 139, 0.18);
-      color: var(--muted);
-      font-size: 0.94rem;
-      line-height: 1.45;
-    }
-
-    .fact-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .fact-row strong {
-      color: var(--ink);
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .grid-mini {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-    }
-
-    .cell {
-      min-height: 34px;
-      border-radius: 5px;
-      border: 1px solid rgba(31, 41, 55, 0.2);
-      display: grid;
-      place-items: center;
-      font-weight: 700;
-      color: #172033;
-      background: #e9faff;
-    }
-
-    .cell.empty {
-      color: #94a3b8;
-      background: #eef2f7;
-    }
-
     @media (max-width: 820px) {
       body {
         padding: 16px;
@@ -228,14 +181,14 @@
   </style>
 </head>
 <body>
-  <main aria-label="六块立体图形随机生成器">
+  <main aria-label="立体大楼变变变">
     <section class="stage" aria-label="固定视角立体图形">
       <svg id="solid" viewBox="0 0 760 560" role="img" aria-label="由 6 个小正方体组成的立体图形"></svg>
     </section>
 
     <aside class="panel">
       <div>
-        <h1>六块立体图形</h1>
+        <h1>立体大楼变变变</h1>
         <p class="hint">始终保持 6 个小正方体、两层高度、2x3 底座范围。点击开始后连续随机变化，停止时保留当前图形。</p>
       </div>
 
@@ -244,15 +197,6 @@
         <button id="single" type="button">随机一次</button>
       </div>
 
-      <div class="facts" aria-label="当前图形信息">
-        <div class="fact-row"><span>小正方体</span><strong id="cubeCount">6 个</strong></div>
-        <div class="fact-row"><span>层数</span><strong>2 层</strong></div>
-        <div class="fact-row"><span>底座范围</span><strong>2 x 3</strong></div>
-        <div>
-          <div class="fact-row" style="margin-bottom: 8px;"><span>各格高度</span><strong id="heightCode">2 0 2 / 1 1 0</strong></div>
-          <div class="grid-mini" id="miniGrid" aria-label="2x3 高度示意"></div>
-        </div>
-      </div>
     </aside>
   </main>
 
@@ -260,9 +204,6 @@
     const svg = document.getElementById("solid");
     const toggleButton = document.getElementById("toggle");
     const singleButton = document.getElementById("single");
-    const cubeCount = document.getElementById("cubeCount");
-    const heightCode = document.getElementById("heightCode");
-    const miniGrid = document.getElementById("miniGrid");
 
     const SIZE = 100;
     const DEPTH_X = 38;
@@ -352,20 +293,6 @@
 
       const cubes = cubesFromHeights(heights);
       cubes.forEach(({ x, y, z }) => svg.append(drawCube(x, y, z)));
-      cubeCount.textContent = `${cubes.length} 个`;
-      updateMiniGrid(heights);
-    }
-
-    function updateMiniGrid(heights) {
-      miniGrid.replaceChildren();
-      const flat = heights.flat();
-      heightCode.textContent = `${heights[1].join(" ")} / ${heights[0].join(" ")}`;
-      flat.forEach((height) => {
-        const cell = document.createElement("div");
-        cell.className = height ? "cell" : "cell empty";
-        cell.textContent = height || "0";
-        miniGrid.append(cell);
-      });
     }
 
     function randomHeights() {
