@@ -43,7 +43,7 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr) 280px;
       gap: 22px;
-      align-items: stretch;
+      align-items: center;
     }
 
     .stage {
@@ -93,6 +93,7 @@
     }
 
     .panel {
+      width: 100%;
       background: var(--panel);
       border: 1px solid rgba(23, 32, 51, 0.12);
       border-radius: 8px;
@@ -100,8 +101,7 @@
       padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 28px;
-      justify-content: center;
+      gap: 22px;
     }
 
     .panel > div:first-child {
@@ -303,27 +303,62 @@
     }
 
     function randomHeights() {
-      const values = new Array(COLS * ROWS).fill(0);
-      let remaining = TOTAL_CUBES;
-      let guard = 0;
+      while (true) {
+        const values = new Array(COLS * ROWS).fill(0);
+        let remaining = TOTAL_CUBES;
 
-      while (remaining > 0 && guard < 100) {
-        const index = Math.floor(Math.random() * values.length);
-        if (values[index] < 2) {
-          values[index] += 1;
-          remaining -= 1;
+        while (remaining > 0) {
+          const index = Math.floor(Math.random() * values.length);
+          if (values[index] < 2) {
+            values[index] += 1;
+            remaining -= 1;
+          }
         }
-        guard += 1;
+
+        const hasTopLayer = values.some((height) => height === 2);
+        const hasBaseSpread = values.filter((height) => height > 0).length >= 3;
+        if (!hasTopLayer || !hasBaseSpread || !isConnected(values)) {
+          continue;
+        }
+
+        return [
+          values.slice(0, COLS),
+          values.slice(COLS, COLS * ROWS)
+        ];
+      }
+    }
+
+    function isConnected(values) {
+      const occupied = values
+        .map((height, index) => height > 0 ? index : -1)
+        .filter((index) => index >= 0);
+      const visited = new Set([occupied[0]]);
+      const queue = [occupied[0]];
+
+      while (queue.length > 0) {
+        const index = queue.shift();
+        const x = index % COLS;
+        const y = Math.floor(index / COLS);
+        const neighbors = [
+          [x - 1, y],
+          [x + 1, y],
+          [x, y - 1],
+          [x, y + 1]
+        ];
+
+        neighbors.forEach(([nextX, nextY]) => {
+          if (nextX < 0 || nextX >= COLS || nextY < 0 || nextY >= ROWS) {
+            return;
+          }
+          const nextIndex = nextY * COLS + nextX;
+          if (values[nextIndex] > 0 && !visited.has(nextIndex)) {
+            visited.add(nextIndex);
+            queue.push(nextIndex);
+          }
+        });
       }
 
-      const heights = [
-        values.slice(0, COLS),
-        values.slice(COLS, COLS * ROWS)
-      ];
-
-      const hasTopLayer = values.some((height) => height === 2);
-      const hasBaseSpread = values.filter((height) => height > 0).length >= 3;
-      return hasTopLayer && hasBaseSpread ? heights : randomHeights();
+      return visited.size === occupied.length;
     }
 
     function changeShape() {
