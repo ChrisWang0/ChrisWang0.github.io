@@ -92,6 +92,24 @@
       filter: blur(3px);
     }
 
+    .base-grid__floor {
+      fill: rgba(217, 251, 255, 0.34);
+      stroke: #64748b;
+      stroke-width: 3;
+      stroke-dasharray: 10 8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .base-grid__line {
+      stroke: #64748b;
+      stroke-width: 3;
+      stroke-dasharray: 10 8;
+      stroke-linecap: round;
+      vector-effect: non-scaling-stroke;
+    }
+
     .panel {
       width: 100%;
       background: var(--panel);
@@ -274,6 +292,47 @@
       return group;
     }
 
+    function baseGridPoint(x, y) {
+      return [
+        ORIGIN_X + x * SIZE + y * DEPTH_X,
+        BASE_Y + SIZE - y * DEPTH_Y
+      ];
+    }
+
+    function gridLine(start, end) {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", start[0]);
+      line.setAttribute("y1", start[1]);
+      line.setAttribute("x2", end[0]);
+      line.setAttribute("y2", end[1]);
+      line.setAttribute("class", "base-grid__line");
+      return line;
+    }
+
+    function drawBaseGrid() {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", "base-grid");
+
+      const floor = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      floor.setAttribute("points", [
+        baseGridPoint(0, 0),
+        baseGridPoint(COLS, 0),
+        baseGridPoint(COLS, ROWS),
+        baseGridPoint(0, ROWS)
+      ].map((point) => point.join(",")).join(" "));
+      floor.setAttribute("class", "base-grid__floor");
+      group.append(floor);
+
+      for (let x = 1; x < COLS; x += 1) {
+        group.append(gridLine(baseGridPoint(x, 0), baseGridPoint(x, ROWS)));
+      }
+      for (let y = 1; y < ROWS; y += 1) {
+        group.append(gridLine(baseGridPoint(0, y), baseGridPoint(COLS, y)));
+      }
+
+      return group;
+    }
+
     function cubesFromHeights(heights) {
       const cubes = [];
       heights.forEach((row, y) => {
@@ -297,6 +356,7 @@
       shadow.setAttribute("rx", "250");
       shadow.setAttribute("ry", "38");
       svg.append(shadow);
+      svg.append(drawBaseGrid());
 
       const cubes = cubesFromHeights(heights);
       cubes.forEach(({ x, y, z }) => svg.append(drawCube(x, y, z)));
