@@ -319,11 +319,12 @@
         const spansAllColumns = Array.from({ length: COLS }, (_, x) =>
           Array.from({ length: ROWS }, (_, y) => values[y * COLS + x] > 0).some(Boolean)
         ).every(Boolean);
-        const spansAllRows = Array.from({ length: ROWS }, (_, y) =>
-          values.slice(y * COLS, (y + 1) * COLS).some((height) => height > 0)
+        const hasTwoCellsPerRow = Array.from({ length: ROWS }, (_, y) =>
+          values.slice(y * COLS, (y + 1) * COLS)
+            .filter((height) => height > 0).length >= 2
         ).every(Boolean);
 
-        if (!hasTopLayer || !spansAllColumns || !spansAllRows || !isConnected(values)) {
+        if (!hasTopLayer || !spansAllColumns || !hasTwoCellsPerRow || !isConnected(values)) {
           continue;
         }
 
