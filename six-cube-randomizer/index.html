@@ -93,19 +93,40 @@
     }
 
     .base-grid__floor {
-      fill: rgba(217, 251, 255, 0.34);
+      fill: rgba(217, 251, 255, 0.22);
       stroke: none;
     }
 
-    .base-grid__outline,
-    .base-grid__line {
+    .base-grid__outline {
       fill: none;
-      stroke: rgba(100, 116, 139, 0.78);
-      stroke-width: 2.5;
-      stroke-dasharray: 8 7;
+      stroke: rgba(100, 116, 139, 0.52);
+      stroke-width: 2.25;
+      stroke-dasharray: 8 9;
       stroke-linecap: round;
       stroke-linejoin: round;
       vector-effect: non-scaling-stroke;
+    }
+
+    .base-grid__line {
+      fill: none;
+      stroke: rgba(100, 116, 139, 0.34);
+      stroke-width: 2;
+      stroke-dasharray: 7 10;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .base-grid__height {
+      fill: #334155;
+      stroke: rgba(255, 255, 255, 0.94);
+      stroke-width: 5;
+      paint-order: stroke fill;
+      font-size: 20px;
+      font-weight: 800;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
     }
 
     .panel {
@@ -348,6 +369,26 @@
       return group;
     }
 
+    function drawHeightLabels(heights) {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.setAttribute("class", "base-grid-heights");
+      group.setAttribute("aria-hidden", "true");
+
+      heights.forEach((row, y) => {
+        row.forEach((height, x) => {
+          const [labelX, labelY] = baseGridPoint(x + 0.5, y + 0.5);
+          const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          label.setAttribute("x", labelX);
+          label.setAttribute("y", labelY);
+          label.setAttribute("class", "base-grid__height");
+          label.textContent = height;
+          group.append(label);
+        });
+      });
+
+      return group;
+    }
+
     function cubesFromHeights(heights) {
       const cubes = [];
       heights.forEach((row, y) => {
@@ -376,6 +417,7 @@
       const cubes = cubesFromHeights(heights);
       cubes.forEach(({ x, y, z }) => svg.append(drawCube(x, y, z)));
       svg.append(drawBaseGridLines());
+      svg.append(drawHeightLabels(heights));
     }
 
     function randomHeights() {
