@@ -325,10 +325,12 @@
         const isHiddenBackCubeWall =
           values[0] === 1 && values[1] === 2 && values[2] === 2 &&
           values.slice(COLS).reduce((sum, height) => sum + height, 0) === 1;
+        const hasFaceConnectedLayers =
+          isLayerConnected(values, 1) && isLayerConnected(values, 2);
 
         if (
           !hasTopLayer || !spansAllColumns || !spansAllRows ||
-          !isConnected(values) || isHiddenBackCubeWall
+          !hasFaceConnectedLayers || isHiddenBackCubeWall
         ) {
           continue;
         }
@@ -340,10 +342,13 @@
       }
     }
 
-    function isConnected(values) {
+    function isLayerConnected(values, minimumHeight) {
       const occupied = values
-        .map((height, index) => height > 0 ? index : -1)
+        .map((height, index) => height >= minimumHeight ? index : -1)
         .filter((index) => index >= 0);
+      if (occupied.length === 0) {
+        return false;
+      }
       const visited = new Set([occupied[0]]);
       const queue = [occupied[0]];
 
@@ -363,7 +368,7 @@
             return;
           }
           const nextIndex = nextY * COLS + nextX;
-          if (values[nextIndex] > 0 && !visited.has(nextIndex)) {
+          if (values[nextIndex] >= minimumHeight && !visited.has(nextIndex)) {
             visited.add(nextIndex);
             queue.push(nextIndex);
           }
